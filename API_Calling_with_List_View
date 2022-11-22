@@ -1,0 +1,117 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+void main() {
+  runApp(MaterialApp(home: MyScreen()));
+}
+
+class MyScreen extends StatefulWidget {
+  const MyScreen({Key? key}) : super(key: key);
+
+  @override
+  State<MyScreen> createState() => _MyScreenState();
+}
+
+class _MyScreenState extends State<MyScreen> {
+  var titleController = TextEditingController();
+  var detailController = TextEditingController();
+  var mytxt = "";
+  var todo = [];
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("API Calling with Todo List"),
+      ),
+      body: Column(
+        children: [
+          TextField(
+            controller: titleController,
+          ),
+          TextField(
+            controller: detailController,
+          ),
+          Row(
+            children: [
+              ElevatedButton(
+                  onPressed: () {
+                    saveData();
+                    print("Save Clicked");
+                  },
+                  child: Text("Save")),
+              ElevatedButton(
+                  onPressed: () {
+                    getData();
+                    print("Get Clicked");
+                  },
+                  child: Text("Get")),
+            ],
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: todo.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title: Text(todo[index].getTitle),
+                  subtitle: Text(todo[index].getDetail),
+                );
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  void saveData() async {
+    var url = Uri.parse("https://akashsir.in/myapi/crud/todo-add-api.php");
+    var response = await http.post(url, body: {
+      'todo_title': titleController.text,
+      'todo_detail': detailController.text
+    });
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    showSnackBar("Saved");
+  }
+
+  void getData() async {
+    var url = Uri.parse("https://akashsir.in/myapi/crud/todo-list-api.php");
+    var response = await http.get(url);
+    // print('Response status: ${response.statusCode}');
+    // print('Response body: ${response.body}');
+    var parsed = jsonDecode(response.body);
+    var todos = parsed['todo_list'];
+
+    setState(() {
+      for (var i = 0; i < todos.length; i++) {
+        todo.add(Todo(todos[i]['todo_title'], todos[i]['todo_details']));
+      }
+    });
+    showSnackBar("Received");
+  }
+
+  showSnackBar(var msg) {
+    var s = SnackBar(content: Text(msg));
+    ScaffoldMessenger.of(context).showSnackBar(s);
+  }
+}
+
+class Todo {
+  var todoDetail, todoTitle;
+  Todo(this.todoTitle, this.todoDetail);
+
+  String get getDetail {
+    return todoDetail;
+  }
+
+  String get getTitle {
+    return todoTitle;
+  }
+
+  String toString() {
+    return "$todoTitle,$todoDetail";
+  }
+}
