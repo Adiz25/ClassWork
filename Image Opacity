@@ -1,0 +1,61 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'Flutter Demo',
+      home: MyHomePage(title: 'Slider with image'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  var sliderValue = 1.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Container(
+        child: Column(
+          children: [
+            Opacity(
+                opacity: sliderValue,
+                child: Center(
+                  child: Image.asset("assets/images/image.jpg"),
+                )),
+            Center(
+              child: Slider(
+                  max: 1.0,
+                  divisions: 10,
+                  value: sliderValue,
+                  onChanged: (value) {
+                    setState(() {
+                      sliderValue = value;
+                    });
+                  }),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
